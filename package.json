@@ -1,5 +1,6 @@
 {
   "name": "ft-node-modules",
+  "private": true,
   "version": "0.0.2",
   "description": "A collection of modules to speed up and standardise node development",
   "main": "./index.js",
