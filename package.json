@@ -1,6 +1,6 @@
 {
   "name": "ft-node-modules",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A collection of modules to speed up and standardise node development",
   "main": "./index.js",
   "directories": {
