@@ -19,5 +19,9 @@
     "SAPI"
   ],
   "author": "Richard Still, Chris Ware",
-  "license": "BSD"
+  "license": "BSD",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Financial-Times/node-modules.git"
+  }
 }
