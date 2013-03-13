@@ -1,0 +1,23 @@
+{
+  "name": "ft-node-modules",
+  "version": "0.0.1",
+  "description": "A collection of modules to speed up and standardise node development",
+  "main": "./index.js",
+  "directories": {
+    "logger": "./logger"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "FT",
+    "Financial",
+    "Times",
+    "CAPI",
+    "API",
+    "SAPI"
+  ],
+  "author": "Richard Still, Chris Ware",
+  "license": "BSD"
+}
