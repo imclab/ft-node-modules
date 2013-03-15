@@ -14,11 +14,14 @@
   "keywords": [
     "FT",
     "Financial",
-    "Times",
-    "CAPI",
-    "API",
-    "SAPI"
+    "Times"
   ],
+  "dependencies" : {
+    "winston" : "0.6.x",
+    "winston-loggly" : "0.6.x",
+    "winston-splunk" : "0.1.x",
+    "konsole" : "2.2.x"
+  },
   "author": "Richard Still, Chris Ware",
   "license": "BSD",
   "repository": {

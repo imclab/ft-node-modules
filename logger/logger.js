@@ -1,15 +1,12 @@
-var wrench = require("wrench"),
-    winston = require("winston"),
-    Env = require("../Env.js");
+var winston = require("winston"),
+    Konsole = require("konsole");
 
-require('winston-loggly').Loggly;
-require('winston-splunk').splunk;
-
-wrench.mkdirSyncRecursive(Env.path.LOGS_DIR, 0755);
+//winston.add(require('winston-loggly').Loggly, options);
+//winston.add(require('winston-splunk').splunk, options);
 
 //var logentries = require("node-logentries");
 //var log = logentries.logger({
-//    token:"706443b3-405e-4fad-81bd-03cc72e61bab"
+//
 //});
 //// use as a winston transport
 //log.winston( winston, {level:"info"} );
@@ -18,7 +15,7 @@ wrench.mkdirSyncRecursive(Env.path.LOGS_DIR, 0755);
 winston.remove(winston.transports.Console);
 
 winston.add(winston.transports.File, {
-    filename: Env.path.LOGS_DIR + "console.log",
+    filename: "logs/console.log",
     //colorize: true,
     timestamp: true,
     maxsize: 52428800, //50Mb
@@ -26,17 +23,16 @@ winston.add(winston.transports.File, {
     json: true
 });
 
-winston.add(winston.transports.Loggly, {
-    subdomain: "financialtimes",
-    inputToken: "98cf7d67-90bf-4a93-839c-cff4c33bf568",
-    json: true
-});
+// winston.add(winston.transports.Loggly, {
+//     subdomain: "financialtimes",
+//     inputToken: "98cf7d67-90bf-4a93-839c-cff4c33bf568",
+//     json: true
+// });
 
-winston.add(winston.transports.splunk, {
-        splunkHostname: "node-server"
-        //,splunkPort:""
-
-});
+// winston.add(winston.transports.splunk, {
+//         splunkHostname: "node-server"
+//         //,splunkPort:""
+// });
 
 
 //winston.loggers.options.transports = [
@@ -133,7 +129,6 @@ console.on('message', function (level, args) {
     // this.write       - shortcut to process.stdout.write(this.format.apply(this, arguments) + '\n');
     // this.format      - shortcut to util.format
 
-
     var trace = this.trace; // trace is a getter, if you do not access the property it will not generate a trace
 
     this.write(this.format.apply(this, args));
@@ -149,14 +144,13 @@ console.on('message', function (level, args) {
 //
 console.on('error', function (args) {
     // need to handle this otherwise Error: Uncaught, unspecified 'error' event.
-
 });
 //console.on('log', function ( args) {
 //
 //});
 
-var value = {obj: "two"}
-console.log("LOG SAMPLE")
+var value = {obj: "two"};
+console.log("LOG SAMPLE");
 console.info("INFO SAMPLE  %s", value.obj);
 console.error("ERROR SAMPLE");
 //winston.info("HELLO")
