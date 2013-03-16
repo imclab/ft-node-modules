@@ -16,6 +16,9 @@ var loggerConfig = {
         logglyKey: null,
         logglyDomain: null,
         logLevel: 'warn'
+    },
+    splunk: {
+        splunkHostname: null
     }
 };
 
@@ -24,11 +27,11 @@ exports.init = function (passedConfig) {
     loggerConfig = ftUtils.mergeConfig(loggerConfig, passedConfig);
     setupLoggly(loggerConfig.loggly);
     setupLocalLogging(loggerConfig.local);
+    setupSplunk();
 };
 
 // We have to remove the console logger otherwise recursion occurs because we're overriding console.* using Konsole (and winston.transports.Console uses console.log)
 winston.remove(winston.transports.Console);
-
 
 function setupLoggly (logglyCfg) {
     // Add the loggly transport
@@ -47,6 +50,19 @@ function setupLoggly (logglyCfg) {
     }
 }
 
+function setupSplunk (splunkCfg) {
+        // Add the loggly transport
+    // if (splunkCfg.logglyKey !== null && splunkCfg.logglyDomain !== null) {
+    //     console.info('Loggly enabled');
+    //     var logLevel = logglyCfg.logLevel || 'warn';
+
+    //     winston.add(require('winston-splunk').splunk, {
+    //         splunkHostname: "node-server"
+    //     });
+    // } else {
+    //     console.info('Splunk logging not enabled');
+    // }
+}
 
 function setupLocalLogging (localCfg) {
     // Add the file transport
@@ -102,33 +118,6 @@ console.on('message', function (level, args) {
     });
 });
 
-
 console.on('error', function (args) {
     // need to handle this otherwise Error: Uncaught, unspecified 'error' event.
 });
-
-
-//winston.add(require('winston-splunk').splunk, options);
-
-//var logentries = require("node-logentries");
-//var log = logentries.logger({
-//
-//});
-//// use as a winston transport
-//log.winston( winston, {level:"info"} );
-
-
-// winston.add(winston.transports.splunk, {
-//         splunkHostname: "node-server"
-//         //,splunkPort:""
-// });
-
-//// http://blogs.splunk.com/2012/09/28/meet-your-splunk-hackathon-winners-splunk-for-winston
-//// https://github.com/erichelgeson/winston-splunk
-//
-////    new winston.transports.splunk({
-////        splunkHostname: "node-server"
-////        //,splunkPort:""
-////
-////    })
-//];
