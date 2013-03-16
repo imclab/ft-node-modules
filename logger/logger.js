@@ -1,5 +1,6 @@
 var winston = require("winston"),
     Konsole = require("konsole"),
+    fs      = require('fs');
     ftUtils = require("../lib/utils.js");
 
 // Configuration options for the logger module
@@ -9,7 +10,7 @@ var loggerConfig = {
         logFile: null,
         logLevel: 'warn',
         getFileLogPath: function () {
-            return this.logDir + this.logFile;
+            return this.local.logDir + this.local.logFile;
         }
     },
     loggly: {
@@ -67,11 +68,18 @@ function setupSplunk (splunkCfg) {
 function setupLocalLogging (localCfg) {
     // Add the file transport
     if (localCfg.logDir !== null && localCfg.logFile !== null) {
+        // Make the local logDir folder if it does not exist
+        fs.exists(localCfg.logDir, function (exists) {
+            if (exists === false) {
+                fs.mkdirSync(localCfg.logDir);
+            }
+        });
+
         console.info('Local logging enabled');
         var logLevel = localCfg.logLevel || 'warn';
 
         winston.add(winston.transports.File, {
-            filename: logglyCfg.getFileLogPath(),
+            filename: localCfg.getFileLogPath(),
             //colorize: true,
             timestamp: true,
             maxsize: 52428800, //50Mb
