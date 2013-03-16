@@ -3,43 +3,71 @@ var winston = require("winston"),
     ftUtils = require("../lib/utils.js");
 
 // Configuration options for the logger module
-var config = {
-    logDir: 'logs/',
-    logFile: 'console.log',
-    winstonLoglevel: 'warn',
-    logglyKey: null,
-    logglyDomain: null,
-    getFileLogPath: function () {
-        return this.logDir + this.logFile;
+var loggerConfig = {
+    local: {
+        logDir: null,
+        logFile: null,
+        logLevel: 'warn',
+        getFileLogPath: function () {
+            return this.logDir + this.logFile;
+        }
+    },
+    loggly: {
+        logglyKey: null,
+        logglyDomain: null,
+        logLevel: 'warn'
     }
+};
+
+// The initialise the logger; merge default and passed config then setup the winston transports
+exports.init = function (passedConfig) {
+    loggerConfig = ftUtils.mergeConfig(loggerConfig, passedConfig);
+    setupLoggly(loggerConfig.loggly);
+    setupLocalLogging(loggerConfig.local);
 };
 
 // We have to remove the console logger otherwise recursion occurs because we're overriding console.* using Konsole (and winston.transports.Console uses console.log)
 winston.remove(winston.transports.Console);
 
-// Add the file transport
-winston.add(winston.transports.File, {
-    filename: config.getFileLogPath(),
-    //colorize: true,
-    timestamp: true,
-    maxsize: 52428800, //50Mb
-    maxFiles: 1,
-    level: config.winstonLoglevel,
-    json: true
-});
 
-// Add the loggly transport
-winston.add(require('winston-loggly').Loggly, {
-    subdomain: config.logglyDomain,
-    inputToken: config.logglyKey,
-    level: config.winstonLoglevel,
-    json: true
-});
+function setupLoggly (logglyCfg) {
+    // Add the loggly transport
+    if (logglyCfg.logglyKey !== null && logglyCfg.logglyDomain !== null) {
+        console.info('Loggly enabled');
+        var logLevel = logglyCfg.logLevel || 'warn';
 
-exports.init = function (passedConfig) {
-    config = ftUtils.mergeConfig(config, passedConfig);
-    console.log(config);
-};
+        winston.add(require('winston-loggly').Loggly, {
+            subdomain: logglyCfg.logglyDomain,
+            inputToken: logglyCfg.logglyKey,
+            level: logLevel,
+            json: true
+        });
+    } else {
+        console.info('Loggly not enabled');
+    }
+}
+
+
+function setupLocalLogging (localCfg) {
+    // Add the file transport
+    if (localCfg.logDir !== null && localCfg.logFile !== null) {
+        console.info('Local logging enabled');
+        var logLevel = localCfg.logLevel || 'warn';
+
+        winston.add(winston.transports.File, {
+            filename: logglyCfg.getFileLogPath(),
+            //colorize: true,
+            timestamp: true,
+            maxsize: 52428800, //50Mb
+            maxFiles: 1,
+            level: logLevel,
+            json: true
+        });
+    } else {
+        console.info('local logging not enabled');
+    }
+}
+
 
 var restoreConsole = require("konsole/overrideConsole");
 ////
@@ -89,11 +117,6 @@ console.on('error', function (args) {
 //// use as a winston transport
 //log.winston( winston, {level:"info"} );
 
-// winston.add(winston.transports.Loggly, {
-//     subdomain: "financialtimes",
-//     inputToken: "98cf7d67-90bf-4a93-839c-cff4c33bf568",
-//     json: true
-// });
 
 // winston.add(winston.transports.splunk, {
 //         splunkHostname: "node-server"
