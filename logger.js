@@ -1,7 +1,7 @@
 var winston = require("winston"),
     Konsole = require("konsole"),
     fs      = require('fs');
-    ftUtils = require("../lib/utils.js");
+    ftUtils = require("./lib/utils.js");
 
 // Configuration options for the logger module
 var loggerConfig = {
