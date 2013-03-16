@@ -67,26 +67,25 @@ function setupSplunk (splunkCfg) {
 }
 
 function setupLocalLogging (localCfg) {
-    // Add the file transport
     if (localCfg.logDir !== null && localCfg.logFile !== null) {
         // Make the local logDir folder if it does not exist
         fs.exists(localCfg.logDir, function (exists) {
             if (exists === false) {
-                fs.mkdirSync(localCfg.logDir);
+                fs.mkdir(localCfg.logDir, function () {
+                    console.info('Local logging enabled');
+                    var logLevel = localCfg.logLevel || 'warn';
+                    // Add the file transport to winston
+                    winston.add(winston.transports.File, {
+                        filename: getFileLogPath(),
+                        //colorize: true,
+                        timestamp: true,
+                        maxsize: 52428800, //50Mb
+                        maxFiles: 1,
+                        level: logLevel,
+                        json: true
+                    });
+                });
             }
-        });
-
-        console.info('Local logging enabled');
-        var logLevel = localCfg.logLevel || 'warn';
-
-        winston.add(winston.transports.File, {
-            filename: getFileLogPath(),
-            //colorize: true,
-            timestamp: true,
-            maxsize: 52428800, //50Mb
-            maxFiles: 1,
-            level: logLevel,
-            json: true
         });
     } else {
         console.info('local logging not enabled');
