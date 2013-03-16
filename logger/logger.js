@@ -8,10 +8,7 @@ var loggerConfig = {
     local: {
         logDir: null,
         logFile: null,
-        logLevel: 'warn',
-        getFileLogPath: function () {
-            return this.local.logDir + this.local.logFile;
-        }
+        logLevel: 'warn'
     },
     loggly: {
         logglyKey: null,
@@ -22,6 +19,10 @@ var loggerConfig = {
         splunkHostname: null
     }
 };
+
+function getFileLogPath () {
+    return loggerConfig.local.logDir + loggerConfig.local.logFile;
+}
 
 // The initialise the logger; merge default and passed config then setup the winston transports
 exports.init = function (passedConfig) {
@@ -79,7 +80,7 @@ function setupLocalLogging (localCfg) {
         var logLevel = localCfg.logLevel || 'warn';
 
         winston.add(winston.transports.File, {
-            filename: localCfg.getFileLogPath(),
+            filename: getFileLogPath(),
             //colorize: true,
             timestamp: true,
             maxsize: 52428800, //50Mb
