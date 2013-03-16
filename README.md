@@ -8,7 +8,7 @@ logger
 Easy logging for local, loggly and splunk. Overrides console:
 
     // Require the logger module
-    var ftnm = require('ft-node-modules/logger/logger');
+    var ftnm = require('ft-node-modules/logger');
     
     // Define your logging options
     var config = {
