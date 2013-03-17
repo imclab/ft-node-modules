@@ -18,10 +18,12 @@ var loggerConfig = {
         logLevel: 'warn'
     },
     splunk: {
-        splunkHostname: null
+        splunkHostname: null,
+        logLevel: 'warn'
     },
     logentries: {
-        token: null
+        token: null,
+        logLevel: 'warn'
     }
 };
 
@@ -48,12 +50,11 @@ function setupLoggly (logglyCfg) {
     // Add the loggly transport
     if (logglyCfg.logglyKey !== null && logglyCfg.logglyDomain !== null) {
         console.info('Loggly enabled');
-        var logLevel = logglyCfg.logLevel || 'warn';
 
         winston.add(require('winston-loggly').Loggly, {
             subdomain: logglyCfg.logglyDomain,
             inputToken: logglyCfg.logglyKey,
-            level: logLevel,
+            level: logglyCfg.logLevel,
             json: true
         });
     } else {
@@ -85,7 +86,7 @@ function setupLocalLogging (localCfg) {
                 fs.mkdirSync(localCfg.logDir);
             }
             console.info('Local logging enabled');
-            var logLevel = localCfg.logLevel || 'warn';
+
             // Add the file transport to winston
             winston.add(winston.transports.File, {
                 filename: getFileLogPath(),
@@ -93,7 +94,7 @@ function setupLocalLogging (localCfg) {
                 timestamp: true,
                 maxsize: 52428800, //50Mb
                 maxFiles: 1,
-                level: logLevel,
+                level: localCfg.logLevel,
                 json: true
             });
         });
@@ -104,11 +105,12 @@ function setupLocalLogging (localCfg) {
 
 function setupLogentries (logentriesCfg) {
     "use strict";
+    var logLevel = logentriesCfg.logLevel || 'warn';
     if (logentriesCfg.token !== null) {
         logE = logentries.logger({
             token: logentriesCfg.token
         });
-        logE.winston(winston);
+        logE.winston(winston, {level:logLevel});
         console.info('Logentries enabled');
     } else {
         console.info('Logentries not enabled');
@@ -139,6 +141,15 @@ console.on('message', function (level, args) {
     this.write(msg);
 
     //winston.log(level, msg);
+
+    // winston.log(level, {
+    //     msg: msg,
+    //     pid: this.pid,
+    //     processType: this.processType,
+    //     label: this.label,
+    //     path: trace.path,
+    //     line: trace.line
+    // });
 
     winston.log(level, JSON.stringify({
         msg: msg,
