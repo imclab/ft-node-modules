@@ -24,7 +24,11 @@ Easy logging for local, loggly and splunk. Overrides console:
         },
         splunk: {
             splunkHostname: null
-        }
+        },
+	    logentries: {
+			token: 'yyyyy-yyyyyy-yyyyy-yyyyy',
+			logLevel: 'error'
+	    }
     };
     
     ftnm.init(config);
