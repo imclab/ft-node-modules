@@ -1,7 +1,9 @@
-var winston = require("winston"),
-    Konsole = require("konsole"),
-    fs      = require('fs');
-    ftUtils = require("./lib/utils.js");
+var winston     = require("winston"),
+    Konsole     = require("konsole"),
+    fs          = require('fs'),
+    logentries  = require('node-logentries'),
+    ftUtils     = require("./lib/utils.js"),
+    logE;
 
 // Configuration options for the logger module
 var loggerConfig = {
@@ -17,25 +19,32 @@ var loggerConfig = {
     },
     splunk: {
         splunkHostname: null
+    },
+    logentries: {
+        token: null
     }
 };
 
 function getFileLogPath () {
+    "use strict";
     return loggerConfig.local.logDir + loggerConfig.local.logFile;
 }
 
 // The initialise the logger; merge default and passed config then setup the winston transports
 exports.init = function (passedConfig) {
+    "use strict";
     loggerConfig = ftUtils.mergeConfig(loggerConfig, passedConfig);
     setupLoggly(loggerConfig.loggly);
     setupLocalLogging(loggerConfig.local);
     setupSplunk();
+    setupLogentries(loggerConfig.logentries);
 };
 
 // We have to remove the console logger otherwise recursion occurs because we're overriding console.* using Konsole (and winston.transports.Console uses console.log)
 winston.remove(winston.transports.Console);
 
 function setupLoggly (logglyCfg) {
+    "use strict";
     // Add the loggly transport
     if (logglyCfg.logglyKey !== null && logglyCfg.logglyDomain !== null) {
         console.info('Loggly enabled');
@@ -53,6 +62,7 @@ function setupLoggly (logglyCfg) {
 }
 
 function setupSplunk (splunkCfg) {
+    "use strict";
         // Add the loggly transport
     // if (splunkCfg.logglyKey !== null && splunkCfg.logglyDomain !== null) {
     //     console.info('Loggly enabled');
@@ -67,31 +77,43 @@ function setupSplunk (splunkCfg) {
 }
 
 function setupLocalLogging (localCfg) {
+    "use strict";
     if (localCfg.logDir !== null && localCfg.logFile !== null) {
         // Make the local logDir folder if it does not exist
         fs.exists(localCfg.logDir, function (exists) {
             if (exists === false) {
-                fs.mkdir(localCfg.logDir, function () {
-                    console.info('Local logging enabled');
-                    var logLevel = localCfg.logLevel || 'warn';
-                    // Add the file transport to winston
-                    winston.add(winston.transports.File, {
-                        filename: getFileLogPath(),
-                        //colorize: true,
-                        timestamp: true,
-                        maxsize: 52428800, //50Mb
-                        maxFiles: 1,
-                        level: logLevel,
-                        json: true
-                    });
-                });
+                fs.mkdirSync(localCfg.logDir);
             }
+            console.info('Local logging enabled');
+            var logLevel = localCfg.logLevel || 'warn';
+            // Add the file transport to winston
+            winston.add(winston.transports.File, {
+                filename: getFileLogPath(),
+                //colorize: true,
+                timestamp: true,
+                maxsize: 52428800, //50Mb
+                maxFiles: 1,
+                level: logLevel,
+                json: true
+            });
         });
     } else {
         console.info('local logging not enabled');
     }
 }
 
+function setupLogentries (logentriesCfg) {
+    "use strict";
+    if (logentriesCfg.token !== null) {
+        logE = logentries.logger({
+            token: logentriesCfg.token
+        });
+        logE.winston(winston);
+        console.info('Logentries enabled');
+    } else {
+        console.info('Logentries not enabled');
+    }
+}
 
 var restoreConsole = require("konsole/overrideConsole");
 ////
@@ -116,14 +138,16 @@ console.on('message', function (level, args) {
     var msg = this.format.apply(this, args);
     this.write(msg);
 
-    winston.log(level, {
+    //winston.log(level, msg);
+
+    winston.log(level, JSON.stringify({
         msg: msg,
         pid: this.pid,
         processType: this.processType,
         label: this.label,
         path: trace.path,
         line: trace.line
-    });
+    }));
 });
 
 console.on('error', function (args) {

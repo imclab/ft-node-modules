@@ -20,7 +20,8 @@
     "winston" : "0.6.x",
     "winston-loggly" : "0.6.x",
     "winston-splunk" : "0.1.x",
-    "konsole" : "2.2.x"
+    "konsole" : "2.2.x",
+    "node-logentries": "0.1.x"
   },
   "author": "Richard Still, Chris Ware",
   "license": "BSD",
