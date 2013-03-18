@@ -8,25 +8,25 @@ var winston     = require("winston"),
 // Configuration options for the logger module
 var loggerConfig = {
     console: {
-        logLevel: 'warn'
+        logLevel: 'log'
     },
     local: {
         logDir: null,
         logFile: null,
-        logLevel: 'warn'
+        logLevel: 'info'
     },
     loggly: {
         logglyKey: null,
         logglyDomain: null,
-        logLevel: 'warn'
+        logLevel: 'info'
     },
     splunk: {
         splunkHostname: null,
-        logLevel: 'warn'
+        logLevel: 'info'
     },
     logentries: {
         token: null,
-        logLevel: 'warn'
+        logLevel: 'info'
     }
 };
 

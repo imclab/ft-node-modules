@@ -15,7 +15,7 @@ You can however set the logging level of 'console'
     // Define your logging options
     var config = {
         console: {
-            logLevel: 'warn' // log|info|warn|error
+            logLevel: 'log' // log|info|warn|error
         }
         local: {
             logDir: 'logs/',
