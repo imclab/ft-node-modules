@@ -7,6 +7,9 @@ var winston     = require("winston"),
 
 // Configuration options for the logger module
 var loggerConfig = {
+    console: {
+        logLevel: 'warn'
+    },
     local: {
         logDir: null,
         logFile: null,
@@ -117,6 +120,23 @@ function setupLogentries (logentriesCfg) {
     }
 }
 
+
+function getConsoleOut (level, msg, config) {
+    var logLevel = config.logLevel,
+        response = false;
+
+    if (logLevel === 'log') {
+        response = level.toUpperCase() + ':' + msg;
+    } else if (logLevel === 'info' && level !== 'log') {
+        response = level.toUpperCase() + ':' + msg;
+    } else if (logLevel === 'warn' && (level === 'warn' || level === 'error')) {
+        response = level.toUpperCase() + ':' + msg;
+    } else if (logLevel === 'error' && level === 'error') {
+        response = level.toUpperCase() + ':' + msg;
+    }
+    return response;
+}
+
 var restoreConsole = require("konsole/overrideConsole");
 ////
 /////**
@@ -136,9 +156,13 @@ console.on('message', function (level, args) {
     // this.write       - shortcut to process.stdout.write(this.format.apply(this, arguments) + '\n');
     // this.format      - shortcut to util.format
 
-    var trace = this.trace; // trace is a getter, if you do not access the property it will not generate a trace
+    var logJson,
+        msg = this.format.apply(this, args),
+        consoleOut = getConsoleOut(level, msg, loggerConfig.console),
+        trace = this.trace; // trace is a getter, if you do not access the property it will not generate a trace
 
-    var logJson = {
+
+    logJson = {
         pid: this.pid,
         processType: this.processType,
         path: trace.path,
@@ -149,11 +173,13 @@ console.on('message', function (level, args) {
     if (args.length === 1 && args[0] instanceof Object) {
         logJson.data = args[0];
     } else {
-        logJson.data = this.format.apply(this, args);
+        logJson.data = msg;
     }
 
     // Output the data to stdout
-    this.write(logJson.data);
+    if (consoleOut !== false) {
+        this.write(consoleOut);
+    }
 
     // Log the data using all registered transports
     winston.log(level, logJson);

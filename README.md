@@ -5,13 +5,18 @@ A collection of modules to speed up and standardise node development at the ft
 
 logger
 ----
-Easy logging for local, loggly and splunk. Overrides console:
+Easy logging for local (file), loggly and logentries. Splunk integration coming soon. Overrides Node's console method so you only need to include the module anywhere in yout application and use 'console' as per normal:
+
+You can however set the logging level of 'console' 
 
     // Require the logger module
     var ftLogger = require('ft-node-modules/logger');
     
     // Define your logging options
     var config = {
+        console: {
+            logLevel: 'warn' // log|info|warn|error
+        }
         local: {
             logDir: 'logs/',
             logFile: 'aLogFile.log',
