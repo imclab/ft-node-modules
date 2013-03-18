@@ -36,6 +36,7 @@ function getFileLogPath () {
 exports.init = function (passedConfig) {
     "use strict";
     loggerConfig = ftUtils.mergeConfig(loggerConfig, passedConfig);
+    console.log('Logging configured with:', loggerConfig);
     setupLoggly(loggerConfig.loggly);
     setupLocalLogging(loggerConfig.local);
     setupSplunk();
@@ -49,14 +50,13 @@ function setupLoggly (logglyCfg) {
     "use strict";
     // Add the loggly transport
     if (logglyCfg.logglyKey !== null && logglyCfg.logglyDomain !== null) {
-        console.info('Loggly enabled');
-
         winston.add(require('winston-loggly').Loggly, {
             subdomain: logglyCfg.logglyDomain,
             inputToken: logglyCfg.logglyKey,
             level: logglyCfg.logLevel,
             json: true
         });
+        console.info('Loggly enabled');
     } else {
         console.info('Loggly not enabled');
     }
