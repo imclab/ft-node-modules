@@ -137,17 +137,26 @@ console.on('message', function (level, args) {
     // this.format      - shortcut to util.format
 
     var trace = this.trace; // trace is a getter, if you do not access the property it will not generate a trace
-    var msg = this.format.apply(this, args);
-    this.write(msg);
 
-    winston.log(level, {
-        msg: msg,
+    var logJson = {
         pid: this.pid,
         processType: this.processType,
-        label: this.label,
         path: trace.path,
         line: trace.line
-    });
+    };
+
+    // If we pass in a JSON object it will not be parsed to a string but instead persisted as JSON for later consumption in the logs
+    if (args.length === 1 && args[0] instanceof Object) {
+        logJson.data = args[0];
+    } else {
+        logJson.data = this.format.apply(this, args);
+    }
+
+    // Output the data to stdout
+    this.write(logJson.data);
+
+    // Log the data using all registered transports
+    winston.log(level, logJson);
 });
 
 console.on('error', function (args) {
