@@ -99,7 +99,7 @@ function setupLocalLogging (localCfg) {
             });
         });
     } else {
-        console.info('local logging not enabled');
+        console.info('Local logging not enabled');
     }
 }
 
@@ -140,25 +140,14 @@ console.on('message', function (level, args) {
     var msg = this.format.apply(this, args);
     this.write(msg);
 
-    //winston.log(level, msg);
-
-    // winston.log(level, {
-    //     msg: msg,
-    //     pid: this.pid,
-    //     processType: this.processType,
-    //     label: this.label,
-    //     path: trace.path,
-    //     line: trace.line
-    // });
-
-    winston.log(level, JSON.stringify({
+    winston.log(level, {
         msg: msg,
         pid: this.pid,
         processType: this.processType,
         label: this.label,
         path: trace.path,
         line: trace.line
-    }));
+    });
 });
 
 console.on('error', function (args) {
