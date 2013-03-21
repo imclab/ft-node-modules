@@ -185,6 +185,6 @@ console.on('message', function (level, args) {
     winston.log(level, logJson);
 });
 
-console.on('error', function (args) {
+console.on('error', function (err) {
     // need to handle this otherwise Error: Uncaught, unspecified 'error' event.
 });
