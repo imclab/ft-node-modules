@@ -1,31 +1,32 @@
 {
-  "name": "ft-node-modules",
-  "private": true,
-  "version": "0.0.2",
-  "description": "A collection of modules to speed up and standardise node development",
-  "directories": {
-    "logger": "./logger"
-  },
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "FT",
-    "Financial",
-    "Times"
-  ],
-  "dependencies" : {
-    "winston" : "0.6.x",
-    "winston-loggly" : "0.6.x",
-    "winston-splunk" : "0.1.x",
-    "konsole" : "2.2.x",
-    "node-logentries": "0.1.x"
-  },
-  "author": "Richard Still, Chris Ware",
-  "license": "BSD",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Financial-Times/node-modules.git"
-  }
+    "name": "ft-node-modules",
+    "private": true,
+    "version": "0.0.3",
+    "description": "A collection of modules to speed up and standardise node development",
+    "devDependencies": {},
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "FT",
+        "Financial",
+        "Times"
+    ],
+    "dependencies": {
+        "winston": "0.6.x",
+        "winston-loggly": "0.6.x",
+        "winston-splunk": "0.1.x",
+        "konsole": "2.2.x",
+        "node-logentries": "0.1.x",
+
+        "request": "2.16.6",
+        "dot": "0.2.6"
+
+    },
+    "author": "Richard Still, Chris Ware",
+    "license": "BSD",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Financial-Times/node-modules.git"
+    }
 }
