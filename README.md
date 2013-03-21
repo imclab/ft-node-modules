@@ -11,7 +11,7 @@ In your application's package.json
             "ft-node-modules":"git+https://github.com/Financial-Times/ft-node-modules.git"
         }
 
-(Optionally add '''#[branch or tag name]''')
+(Optionally add `#[branch or tag name]`)
 
     npm install
 
