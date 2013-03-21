@@ -61,7 +61,7 @@ function setupLoggly (logglyCfg) {
         });
         console.info('Loggly enabled');
     } else {
-        console.info('Loggly not enabled');
+        console.warn('Loggly not enabled');
     }
 }
 
@@ -102,7 +102,7 @@ function setupLocalLogging (localCfg) {
             });
         });
     } else {
-        console.info('Local logging not enabled');
+        console.warn('Local logging not enabled');
     }
 }
 
@@ -116,7 +116,7 @@ function setupLogentries (logentriesCfg) {
         logE.winston(winston, {level:logLevel});
         console.info('Logentries enabled');
     } else {
-        console.info('Logentries not enabled');
+        console.warn('Logentries not enabled');
     }
 }
 
