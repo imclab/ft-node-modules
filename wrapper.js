@@ -36,21 +36,21 @@ exports.fetch = function (wrapperId, callback) {
                 }
             },
             function (err, response, body) {
-                console.log(response.statusCode)
                 if (!err && response.statusCode == 200) {
                     // cache wrapper
                     cache[wrapperId] = body;
+                    process.nextTick(function () {
+                        callback(null, body);
+                    });
                 } else {
-
-                    throw new Error(response.statusCode);
+                    process.nextTick(function () {
+                        callback(response.statusCode, body);
+                    });
                 }
-                process.nextTick(function () {
-                    callback(err, body);
-                });
+
             }
 
-        )
-        ;
+        );
     }
     else {
         console.info("[WRAPPER] Using cached", wrapperId);
