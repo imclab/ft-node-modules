@@ -29,25 +29,38 @@ exports.fetch = function (wrapperId, callback) {
 
     if (!cachedHtml) {
         console.info("[WRAPPER] Fetching", url);
-        request(url, function (err, response, body) {
-            //if (!error && response.statusCode == 200) {
+        request({
+                uri: url,
+                headers: {
+                    "User-Agent": "ft-wrapper"
+                }
+            },
+            function (err, response, body) {
+                console.log(response.statusCode)
+                if (!err && response.statusCode == 200) {
+                    // cache wrapper
+                    cache[wrapperId] = body;
+                } else {
 
-            // cache wrapper
-            cache[wrapperId] = body;
+                    throw new Error(response.statusCode);
+                }
+                process.nextTick(function () {
+                    callback(err, body);
+                });
+            }
 
-            process.nextTick(function () {
-                callback(err, body);
-            });
-            //}
-        });
-    } else {
+        )
+        ;
+    }
+    else {
         console.info("[WRAPPER] Using cached", wrapperId);
         process.nextTick(function () {
             callback(null, cache[wrapperId]);
         });
     }
 
-};
+}
+;
 
 exports.process = function (wrapperHtml, model) {
 
