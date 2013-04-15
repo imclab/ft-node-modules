@@ -65,7 +65,7 @@ Fetch an FT wrapper page and populate it with your content
     var wrapper = require('ft-node-modules/wrapper');
 
     // Initialise the wrapper if you need to override
-    ftLogger.init({
+    wrapper.init({
         wrapperRoot: "http://www.ft.com/thirdpartywrapper/",
         wrapperUpdateMs: 3600000 // 1 hr
     });
