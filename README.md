@@ -40,9 +40,6 @@ You can however set the logging level of 'console'
             logglyDomain: 'myLogglyDomain',
             logLevel: 'warn' // info|warn|error
         },
-        splunk: {
-            splunkHostname: null
-        },
 	    logentries: {
 			token: 'yyyyy-yyyyyy-yyyyy-yyyyy',
 			logLevel: 'error'
