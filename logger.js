@@ -1,11 +1,13 @@
-var winston     = require("winston"),
-    Konsole     = require("konsole"),
-    fs          = require('fs'),
-    logentries  = require('node-logentries'),
-    ftUtils     = require("./lib/utils.js"),
+var winston         = require("winston"),
+    logModules      = require("./lib/logger/logModules.js"),
+    Konsole         = require("konsole"),
+    fs              = require("fs"),
+    logentries      = require("node-logentries"),
+    ftUtils         = require("./lib/utils.js"),
+    util            = require('util'),
     logE;
 
-// Configuration options for the logger module
+// Default configuration options for the logger module
 var loggerConfig = {
     console: {
         logLevel: 'log'
@@ -20,34 +22,43 @@ var loggerConfig = {
         logglyDomain: null,
         logLevel: 'info'
     },
-    splunk: {
-        splunkHostname: null,
-        logLevel: 'info'
-    },
     logentries: {
         token: null,
         logLevel: 'info'
-    }
+    },
+    logAsJson: false
 };
 
-function getFileLogPath () {
+var logLevels = {
+    "log":   1,
+    "info":  2,
+    "warn":  3,
+    "error": 4
+};
+
+function getFileLogPath (logConfig) {
     "use strict";
-    return loggerConfig.local.logDir + loggerConfig.local.logFile;
+    return logConfig.logDir + logConfig.logFile;
 }
 
-// The initialise the logger; merge default and passed config then setup the winston transports
+// We have to remove the console logger otherwise recursion occurs because we're overriding console.* 
+// using Konsole (and winston.transports.Console uses console.log)
+winston.remove(winston.transports.Console);
+
+// Initialise the logger; merge default and passed config then setup the winston transports
 exports.init = function (passedConfig) {
     "use strict";
+    // Merge passed configuration with default
     loggerConfig = ftUtils.mergeConfig(loggerConfig, passedConfig);
+
+    // Setup the logging for the console
+    setupConsoleLogging(loggerConfig.console, logLevels);
     console.log('Logging configured with:', loggerConfig);
+
     setupLoggly(loggerConfig.loggly);
-    setupLocalLogging(loggerConfig.local);
-    setupSplunk();
+    setupFileLogging(loggerConfig.local);
     setupLogentries(loggerConfig.logentries);
 };
-
-// We have to remove the console logger otherwise recursion occurs because we're overriding console.* using Konsole (and winston.transports.Console uses console.log)
-winston.remove(winston.transports.Console);
 
 function setupLoggly (logglyCfg) {
     "use strict";
@@ -65,22 +76,13 @@ function setupLoggly (logglyCfg) {
     }
 }
 
-function setupSplunk (splunkCfg) {
+function setupConsoleLogging (consoleCfg, logLevels) {
     "use strict";
-        // Add the loggly transport
-    // if (splunkCfg.logglyKey !== null && splunkCfg.logglyDomain !== null) {
-    //     console.info('Loggly enabled');
-    //     var logLevel = logglyCfg.logLevel || 'warn';
-
-    //     winston.add(require('winston-splunk').splunk, {
-    //         splunkHostname: "node-server"
-    //     });
-    // } else {
-    //     console.info('Splunk logging not enabled');
-    // }
+    consoleCfg.logLevels = logLevels;
+    logModules.consoleWriter.init(consoleCfg);
 }
 
-function setupLocalLogging (localCfg) {
+function setupFileLogging (localCfg) {
     "use strict";
     if (localCfg.logDir !== null && localCfg.logFile !== null) {
         // Make the local logDir folder if it does not exist
@@ -88,11 +90,11 @@ function setupLocalLogging (localCfg) {
             if (exists === false) {
                 fs.mkdirSync(localCfg.logDir);
             }
-            console.info('Local logging enabled');
+            console.info('File logging enabled');
 
             // Add the file transport to winston
             winston.add(winston.transports.File, {
-                filename: getFileLogPath(),
+                filename: getFileLogPath(localCfg),
                 //colorize: true,
                 timestamp: true,
                 maxsize: 52428800, //50Mb
@@ -102,7 +104,7 @@ function setupLocalLogging (localCfg) {
             });
         });
     } else {
-        console.warn('Local logging not enabled');
+        console.warn('File logging not enabled');
     }
 }
 
@@ -120,25 +122,8 @@ function setupLogentries (logentriesCfg) {
     }
 }
 
-
-function getConsoleOut (level, msg, config) {
-    var logLevel = config.logLevel,
-        response = false;
-
-    if (logLevel === 'log') {
-        response = level.toUpperCase() + ':' + msg;
-    } else if (logLevel === 'info' && level !== 'log') {
-        response = level.toUpperCase() + ':' + msg;
-    } else if (logLevel === 'warn' && (level === 'warn' || level === 'error')) {
-        response = level.toUpperCase() + ':' + msg;
-    } else if (logLevel === 'error' && level === 'error') {
-        response = level.toUpperCase() + ':' + msg;
-    }
-    return response;
-}
-
 var restoreConsole = require("konsole/overrideConsole");
-////
+
 /////**
 //// * Default Listener for Konsole
 //// * @param level String Level used for logging. log|info|warn|error
@@ -146,6 +131,7 @@ var restoreConsole = require("konsole/overrideConsole");
 //// * @scope konsole
 //// */
 console.on('message', function (level, args) {
+    "use strict";
     // Scope within callback is the konsole instance.
     // you have access to the following additional information:
     // this.pid         - process id
@@ -157,34 +143,31 @@ console.on('message', function (level, args) {
     // this.format      - shortcut to util.format
 
     var logJson,
-        msg = this.format.apply(this, args),
-        consoleOut = getConsoleOut(level, msg, loggerConfig.console),
+        logMsg = level.toUpperCase() + ': ' + this.format.apply(this, args),
         trace = this.trace; // trace is a getter, if you do not access the property it will not generate a trace
 
-
     logJson = {
-        pid: this.pid,
-        processType: this.processType,
-        path: trace.path,
-        line: trace.line
+        //pid: this.pid,
+        //processType: this.processType,
+        //path: trace.path,
+        //line: trace.line
+        level: level,
+        data: logMsg
     };
 
-    // If we pass in a JSON object it will not be parsed to a string but instead persisted as JSON for later consumption in the logs
-    if (args.length === 1 && args[0] instanceof Object) {
-        logJson.data = args[0];
+    // If we pass in a JSON object it will not be parsed to a string but instead persisted as JSON for later consumption by systems that understand JSON
+    if (loggerConfig.logAsJson === true) {
+        if (args.length === 1 && args[0] instanceof Object) {
+            logJson.data = args[0];
+        }
+        winston.log(level, logJson);
+        logModules.consoleWriter.log(level, logJson);
     } else {
-        logJson.data = msg;
+        winston.log(level, logMsg);
+        logModules.consoleWriter.log(level, logMsg);
     }
-
-    // Output the data to stdout
-    if (consoleOut !== false) {
-        this.write(consoleOut);
-    }
-
-    // Log the data using all registered transports
-    winston.log(level, logJson);
 });
 
 console.on('error', function (err) {
-    // need to handle this otherwise Error: Uncaught, unspecified 'error' event.
+    "use strict";
 });

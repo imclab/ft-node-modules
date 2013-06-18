@@ -18,13 +18,13 @@
         "winston-splunk": "0.1.x",
         "konsole": "2.2.x",
         "node-logentries": "0.1.x",
-
         "request": "2.16.6",
         "dot": "0.2.6"
-
     },
     "devDependencies": {
-        "mocha": "1.9.0"
+        "mocha": "1.9.0",
+        "sinon": "1.7.x",
+        "qunit": "0.5.x"
     },
     "author": "Richard Still, Chris Ware",
     "license": "BSD",

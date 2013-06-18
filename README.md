@@ -29,7 +29,7 @@ You can however set the logging level of 'console'
     var config = {
         console: {
             logLevel: 'log' // log|info|warn|error
-        }
+        },
         local: {
             logDir: 'logs/',
             logFile: 'aLogFile.log',
@@ -46,7 +46,8 @@ You can however set the logging level of 'console'
 	    logentries: {
 			token: 'yyyyy-yyyyyy-yyyyy-yyyyy',
 			logLevel: 'error'
-	    }
+	    },
+        logAsJson: false
     };
     
     // Initialise the logger
@@ -55,7 +56,7 @@ You can however set the logging level of 'console'
     console.log('Blah blah blah'); // Just logs to stdout
     console.info('More blah blah blah'); // Logs to all outputs
     console.warn('This is a warning, don\'t make me tell you twice'); // Logs to all outputs
-    console.error('Now you've gone and messed it all up'); // Logs to all outputs
+    console.error('Now you\'ve gone and messed it all up'); // Logs to all outputs
 
 wrapper
 -------
